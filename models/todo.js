@@ -1,6 +1,7 @@
-const { DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 
 const { Database } = require("../config/instance");
+const User = require("./user");
 
 const sequelize = Database.sequelize;
 
@@ -8,30 +9,61 @@ const Todo = sequelize.define(
   "Todo",
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
     title: {
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: Sequelize.STRING,
       allowNull: false,
     },
     expiryDate: {
-      type: DataTypes.DATE,
-      
+      type: Sequelize.DATE,
     },
     status: {
-      type: DataTypes.ENUM("pending", "expired", "completed"),
+      type: Sequelize.ENUM("pending", "expired", "completed"),
       defaultValue: "pending",
+    },
+    userId: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      field: "user_id",
+      references: {
+        model: "users",
+        key: "id",
+      },
     },
   },
   {
+    paranoid: true,
     timestamps: true,
     underscored: true,
     tableName: "todos",
     freezeTableName: true,
+    indexes: [
+      {
+        name: "todos_user_id",
+        fields: ["userId"],
+        where: {
+          deletedAt: null,
+        },
+      },
+    ],
   }
 );
 
+Todo.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+User.hasMany(Todo, {
+  foreignKey: "userId",
+  as: "todo",
+});
 
 module.exports = Todo;

@@ -6,6 +6,12 @@ const todoSchema = Joi.object({
     "string.empty": `"title" cannot be an empty field`,
     "any.required": `"title" is a required field`,
   }),
+  description: Joi.string().required().min(10).messages({
+    "string.base": `"description" should be a type of 'text'`,
+    "string.empty": `"description" cannot be an empty field`,
+    "string.min": `"description" should have a minimum length of {#limit}`,
+    "any.required": `"description" is a required field`,
+  }),
   expiryDate: Joi.date().greater("now").optional().messages({
     "date.base": `"expiryDate" should be a type of 'date'`,
     "date.greater": `"expiryDate" must be greater than now`,

@@ -1,17 +1,19 @@
 const router = require("express").Router();
 const Todo = require("../models/Todo");
-const todoSchema = require("../validation/todo.validation");
+const User = require("../models/user");
+const todoSchema = require("../schema/todo.schema");
 
 router.post("/", async (req, res, next) => {
   try {
-    const { error, value } = todoSchema.validate(req.body);
+    const { error } = todoSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         message: "Validation Error",
         error: error.details[0].message,
       });
     }
-    const { title, expiryDate, status } = req.body;
+    console.log(req);
+    const { status } = req.body;
 
     const validStatuses = ["pending", "expired", "completed"];
     if (status && !validStatuses.includes(status)) {
@@ -22,7 +24,7 @@ router.post("/", async (req, res, next) => {
       });
     }
 
-    const todo = await Todo.create({ title, expiryDate, status });
+    const todo = await Todo.create({ userId: req.userId, ...req.body });
     res.status(201).json({
       message: "New Todo created successfully",
       data: todo,
@@ -35,7 +37,16 @@ router.post("/", async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   try {
-    const todos = await Todo.findAll();
+    const todos = await Todo.findAll({
+      where: { userId: req.userId },
+      include: {
+        model: User,
+        as: "user",
+        attributes: ["id", "username", "email"],
+      },
+      order: [['id', 'ASC']]
+    });
+
     res.status(200).json({
       message: "Todos fetched successfully",
       data: todos,
@@ -49,7 +60,15 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const todo = await Todo.findByPk(id);
+    console.log(req.userId);
+    const todo = await Todo.findOne({
+      where: { id, userId: req.userId },
+      include: {
+        model: User,
+        as: "user",
+        attributes: ["id", "username", "email"],
+      },
+    });
     if (!todo)
       return res
         .status(404)
@@ -67,7 +86,9 @@ router.get("/:id", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const todo = await Todo.findByPk(id);
+    const todo = await Todo.findOne({
+      where: { id, userId: req.userId },
+    });
 
     if (!todo)
       return res.status(404).json({ message: `Todo with id ${id} not found!` });
@@ -87,7 +108,9 @@ router.put("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const todo = await Todo.findByPk(id);
+    const todo = await Todo.findOne({
+      where: { id, userId: req.userId },
+    });
     if (!todo)
       return res
         .status(404)

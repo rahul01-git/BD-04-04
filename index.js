@@ -3,9 +3,11 @@ const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const cron = require("node-cron");
 const { router: todoRoutes } = require("./routes/todo.routes");
+const { router: authRoutes } = require("./routes/auth.routes");
 const { Database } = require("./config/instance");
 const Todo = require("./models/Todo");
 const { Op } = require("sequelize");
+const { verifyToken } = require("./middlewares/authMiddleware");
 require("dotenv").config();
 
 const app = express();
@@ -53,7 +55,12 @@ app.get("/", (req, res) => {
   res.send("hola amigo");
 });
 
-app.use("/api/v1/todo", todoRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/todo", verifyToken, todoRoutes);
+
+app.use("/*", (req, res) => {
+  res.status(404).json({ message: "route not found !!" });
+});
 
 app.listen(PORT, async () => {
   await Database.connection();
