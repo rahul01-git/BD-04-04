@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const Todo = require("../models/Todo");
+const Todo = require("../models/todo");
 const User = require("../models/user");
 const todoSchema = require("../schema/todo.schema");
 

@@ -1,11 +1,11 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize } = require('sequelize');
 
-const { Database } = require("../config/instance");
+const { Database } = require('../config/instance');
 
 const sequelize = Database.sequelize;
 
 const User = sequelize.define(
-  "User",
+  'User',
   {
     id: {
       type: Sequelize.INTEGER,
@@ -25,17 +25,21 @@ const User = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    lastLogin: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW,
+    },
   },
   {
     timestamps: true,
     underscored: true,
-    tableName: "users",
+    tableName: 'users',
     freezeTableName: true,
     indexes: [
       {
-        name: "users_email",
+        name: 'users_email',
         unique: true,
-        fields: ["email"],
+        fields: ['email'],
       },
     ],
   }

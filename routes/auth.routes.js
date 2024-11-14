@@ -1,17 +1,17 @@
-const router = require("express").Router();
-const bcryptJS = require("bcryptjs");
-const { loginSchema, registerSchema } = require("../schema/auth.schema");
-const User = require("../models/user");
-const jwt = require("jsonwebtoken");
+const router = require('express').Router();
+const bcryptJS = require('bcryptjs');
+const { loginSchema, registerSchema } = require('../schema/auth.schema');
+const User = require('../models/user');
+const jwt = require('jsonwebtoken');
 
-require("dotenv").config();
+require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
 
-router.post("/login", async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   const { error } = loginSchema.validate(req.body);
   if (error) {
     return res.status(400).json({
-      message: "Validation Error",
+      message: 'Validation Error',
       error: error.details[0].message,
     });
   }
@@ -20,7 +20,7 @@ router.post("/login", async (req, res, next) => {
     const { email, password } = req.body;
     const userExists = await User.findOne({ where: { email } });
     if (!userExists)
-      return res.status(401).json({ error: "Authentication failed !!" });
+      return res.status(401).json({ error: 'Authentication failed !!' });
 
     const passwordMatched = await bcryptJS.compare(
       password,
@@ -29,20 +29,25 @@ router.post("/login", async (req, res, next) => {
     if (!passwordMatched)
       return res
         .status(401)
-        .json({ error: "Email or passowrd didn't matched !!" });
+        .json({ error: "Email or password didn't matched !!" });
 
     const token = jwt.sign(
       { id: userExists.id, email: userExists.email },
       JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: '1h',
       }
+    );
+
+    await User.update(
+      { lastLogin: new Date() },
+      { where: { id: userExists.id } }
     );
 
     const { password: _, ...userWithoutPassword } = userExists.toJSON();
 
     res.status(200).json({
-      message: "Login succesful",
+      message: 'Login successful',
       accessToken: token,
       user: userWithoutPassword,
     });
@@ -52,11 +57,11 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/signup", async (req, res, next) => {
+router.post('/signup', async (req, res, next) => {
   const { error } = registerSchema.validate(req.body);
   if (error) {
     return res.status(400).json({
-      message: "Validation Error",
+      message: 'Validation Error',
       error: error.details[0].message,
     });
   }
@@ -80,7 +85,7 @@ router.post("/signup", async (req, res, next) => {
     const { password: _, ...userWithoutPassword } = registeredUser.toJSON();
 
     res.status(201).json({
-      message: "User registered successfully!",
+      message: 'User registered successfully!',
       data: userWithoutPassword,
     });
   } catch (error) {
