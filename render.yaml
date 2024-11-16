@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: todo-app
+    env: node
+    region: oregon
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: mysql-db
+    plan: free
+
+  - type: database
+    name: mysql-db
+    databaseType: mysql
+    plan: free

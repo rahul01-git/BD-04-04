@@ -3,19 +3,33 @@ const { Sequelize } = require("sequelize");
 
 class Database {
   constructor() {
-    this.dialect = process.env.DB_DIALECT;
-    this.dbname = process.env.DB_NAME;
-    this.username = process.env.DB_USER;
-    this.password = process.env.DB_PASS;
-    this.host = process.env.DB_HOST;
-    this.port = process.env.DB_PORT;
+    this.databaseUrl = process.env.DATABASE_URL;
 
-    this.sequelize = new Sequelize(this.dbname, this.username, this.password, {
-      host: this.host,
-      dialect: this.dialect,
-      port: this.port,
-      logging: false,
-    });
+    if (this.databaseUrl) {
+      this.sequelize = new Sequelize(this.databaseUrl, {
+        dialect: "mysql",
+        logging: false,
+      });
+    } else {
+      this.dialect = process.env.DB_DIALECT;
+      this.dbname = process.env.DB_NAME;
+      this.username = process.env.DB_USER;
+      this.password = process.env.DB_PASS;
+      this.host = process.env.DB_HOST;
+      this.port = process.env.DB_PORT;
+
+      this.sequelize = new Sequelize(
+        this.dbname,
+        this.username,
+        this.password,
+        {
+          host: this.host,
+          dialect: this.dialect,
+          port: this.port,
+          logging: false,
+        }
+      );
+    }
   }
 
   static get() {
@@ -28,9 +42,9 @@ class Database {
   async connection() {
     try {
       await this.sequelize.authenticate();
-      console.info(`${this.dialect} database connected`);
+      console.info("Database connected successfully");
     } catch (error) {
-      console.error(error.message);
+      console.error("Error connecting to the database:", error.message);
       return error;
     }
   }
