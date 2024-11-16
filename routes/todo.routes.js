@@ -12,8 +12,7 @@ router.post("/", async (req, res, next) => {
         error: error.details[0].message,
       });
     }
-    console.log(req);
-    const { status } = req.body;
+    const { status, expiryDate } = req.body;
 
     const validStatuses = ["pending", "expired", "completed"];
     if (status && !validStatuses.includes(status)) {
@@ -21,6 +20,14 @@ router.post("/", async (req, res, next) => {
         message: "Error creating todo",
         error:
           "Status must be one of the following: pending, expired, completed.",
+      });
+    }
+
+    if (!expiryDate) {
+      return res.status(400).json({
+        message: "Error creating todo",
+        error:
+          "Expiry Date must be provided !!",
       });
     }
 
@@ -44,7 +51,7 @@ router.get("/", async (req, res, next) => {
         as: "user",
         attributes: ["id", "username", "email"],
       },
-      order: [['id', 'ASC']]
+      order: [["id", "ASC"]],
     });
 
     res.status(200).json({
