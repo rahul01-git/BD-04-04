@@ -20,6 +20,7 @@ module.exports = {
       },
       expiry_date: {
         type: Sequelize.DATE,
+        allowNull: false,
       },
       status: {
         type: Sequelize.ENUM("pending", "expired", "completed"),
@@ -58,7 +59,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeConstraint('todos', 'todos_ibfk_1');  
     await queryInterface.removeIndex("todos", "todos_user_id");
     await queryInterface.dropTable("todos");
   },

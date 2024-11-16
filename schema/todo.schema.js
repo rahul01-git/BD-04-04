@@ -12,9 +12,10 @@ const todoSchema = Joi.object({
     "string.min": `"description" should have a minimum length of {#limit}`,
     "any.required": `"description" is a required field`,
   }),
-  expiryDate: Joi.date().greater("now").optional().messages({
+  expiryDate: Joi.date().required().greater("now").optional().messages({
     "date.base": `"expiryDate" should be a type of 'date'`,
     "date.greater": `"expiryDate" must be greater than now`,
+    "any.required": `"description" is a required field`,
   }),
   status: Joi.string()
     .valid("pending", "expired", "completed")

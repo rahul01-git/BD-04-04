@@ -7,10 +7,5 @@ services:
     startCommand: "npm start"
     envVars:
       - key: DATABASE_URL
-        fromDatabase: mysql-db
-    plan: free
-
-  - type: database
-    name: mysql-db
-    databaseType: mysql
+        sync: false
     plan: free

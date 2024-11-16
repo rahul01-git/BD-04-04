@@ -5,51 +5,36 @@ class Database {
   constructor() {
     this.databaseUrl = process.env.DATABASE_URL;
 
-    if (this.databaseUrl) {
-      this.sequelize = new Sequelize(this.databaseUrl, {
-        dialect: "mysql",
-        logging: false,
-      });
-    } else {
-      this.dialect = process.env.DB_DIALECT;
-      this.dbname = process.env.DB_NAME;
-      this.username = process.env.DB_USER;
-      this.password = process.env.DB_PASS;
-      this.host = process.env.DB_HOST;
-      this.port = process.env.DB_PORT;
-
-      this.sequelize = new Sequelize(
-        this.dbname,
-        this.username,
-        this.password,
-        {
-          host: this.host,
-          dialect: this.dialect,
-          port: this.port,
-          logging: false,
-        }
-      );
-    }
+    this.sequelize = new Sequelize(this.databaseUrl, {
+      dialect: "postgres",
+      logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+    });
   }
 
-  static get() {
+  static getInstance() {
     if (!Database.instance) {
       Database.instance = new Database();
     }
     return Database.instance;
   }
 
-  async connection() {
+  async connect() {
     try {
       await this.sequelize.authenticate();
       console.info("Database connected successfully");
     } catch (error) {
       console.error("Error connecting to the database:", error.message);
-      return error;
+      throw error;
     }
   }
 }
 
-const database = Database.get();
+const database = Database.getInstance();
 
 module.exports = { Database: database };

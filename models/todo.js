@@ -23,6 +23,7 @@ const Todo = sequelize.define(
     },
     expiryDate: {
       type: Sequelize.DATE,
+      allowNull: false,
     },
     status: {
       type: Sequelize.ENUM("pending", "expired", "completed"),

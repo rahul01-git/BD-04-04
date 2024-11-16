@@ -120,6 +120,6 @@ app.use("/*", (req, res) => {
 });
 
 server.listen(PORT, async () => {
-  await Database.connection();
+  await Database.connect();
   console.log("server spinning on port", PORT);
 });
